@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Module 1: Getting Started with Images</h3>
+
+<!-- 1. Upload Image -->
+<form method="POST" enctype="multipart/form-data">
+
+<h5>1. Upload Image</h5>
+<input type="file" name="image" required class="form-control my-2">
+<input type="checkbox" name="show_size"> Show Image Size (Width x Height)
+
+<button class="btn btn-dark mt-2" type="submit">Upload & Show Axis</button>
+
+</form>
+
+{% if axis_image_data %}
+<hr>
+<h5>Uploaded Image with Axis (Use this for Coordinates Reference)</h5>
+<img src="data:image/jpeg;base64,{{ axis_image_data }}" class="img-fluid" />
+
+<form method="POST">
+
+<input type="hidden" name="filename" value="{{ filename }}">
+
+{% if image_size %}
+<p><strong>Image Size:</strong> {{ image_size }}</p>
+{% endif %}
+
+<!-- 2. Select Color Conversion -->
+<hr>
+<h5>2. Select Color Conversion</h5>
+
+<select name="color" class="form-control">
+    <option value="none">None</option>
+    <option value="gray">Grayscale</option>
+    <option value="hsv">HSV</option>
+</select>
+
+<br>
+
+<h6>Select Channels to Display (Multiple Allowed):</h6>
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" name="channels" value="R"> Red Channel<br>
+  <input class="form-check-input" type="checkbox" name="channels" value="G"> Green Channel<br>
+  <input class="form-check-input" type="checkbox" name="channels" value="B"> Blue Channel<br>
+  <input class="form-check-input" type="checkbox" name="channels" value="H"> Hue Channel<br>
+  <input class="form-check-input" type="checkbox" name="channels" value="S"> Saturation Channel<br>
+  <input class="form-check-input" type="checkbox" name="channels" value="V"> Value Channel<br>
+</div>
+
+<!-- 3. Basic Image Manipulations -->
+<hr>
+<h5>3. Basic Image Manipulations</h5>
+
+<input type="checkbox" name="resize"> Resize → Width:
+<input type="number" name="width" value="300"> Height:
+<input type="number" name="height" value="300">
+
+<br><br>
+
+<input type="checkbox" name="rotate"> Rotate → Angle (Degrees):
+<input type="number" name="angle" value="45">
+
+<br><br>
+
+<h6>Flip Image:</h6>
+<select name="flip" class="form-control">
+    <option value="none">None</option>
+    <option value="horizontal">Horizontal Flip</option>
+    <option value="vertical">Vertical Flip</option>
+    <option value="both">Both Horizontal & Vertical Flip</option>
+</select>
+
+<br><br>
+
+<input type="checkbox" name="crop"> Crop Image<br>
+Top Left(x1, y1) → Bottom Right(x2, y2):<br>
+x1: <input type="number" name="x1" value="0"> y1:
+<input type="number" name="y1" value="0"> x2:
+<input type="number" name="x2" value="100"> y2:
+<input type="number" name="y2" value="100">
+
+<!-- 4. Annotate Image -->
+<hr>
+<h5>4. Annotate Image</h5>
+
+<input type="checkbox" name="annotate"> Add Text Annotation → Text & Position(x, y):<br>
+Text: <input type="text" name="text" value="OpenCV"> x:
+<input type="number" name="x" value="50"> y:
+<input type="number" name="y" value="50">
+
+<br><br>
+
+<input type="checkbox" name="annotate_line"> Add Line Annotation → Start(x1, y1) to End(x2, y2):<br>
+x1: <input type="number" name="lx1" value="0"> y1:
+<input type="number" name="ly1" value="0"> x2:
+<input type="number" name="lx2" value="100"> y2:
+<input type="number" name="ly2" value="100">
+
+<br><br>
+
+<input type="checkbox" name="annotate_circle"> Add Circle Annotation → Center(x, y) & Radius:<br>
+x: <input type="number" name="cx" value="100"> y:
+<input type="number" name="cy" value="100"> Radius:
+<input type="number" name="r" value="50">
+
+<br><br>
+
+<input type="checkbox" name="annotate_rectangle"> Add Rectangle Annotation → Top Left(x1, y1) & Bottom Right(x2, y2):<br>
+x1: <input type="number" name="rx1" value="0"> y1:
+<input type="number" name="ry1" value="0"> x2:
+<input type="number" name="rx2" value="100"> y2:
+<input type="number" name="ry2" value="100">
+
+<hr>
+
+<button class="btn btn-dark mt-2" type="submit" name="save">Process & Save Image</button>
+
+</form>
+{% endif %}
+
+{% if msg %}
+<hr>
+<h5>{{ msg }}</h5>
+{% endif %}
+
+{% if image_data %}
+<hr>
+<h5>Processed Image:</h5>
+<img src="data:image/jpeg;base64,{{ image_data }}" class="img-fluid" />
+{% endif %}
+
+{% endblock %}
+
+{% block footer %}
+<div class="footer">
+  Powered by OpenCV
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Module 2: Arithmetic, Logical Operations & Thresholding</h3>
+<form method="POST" enctype="multipart/form-data">
+  <input type="file" name="image" required class="form-control my-2">
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" name="add"> Add Brightness
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" name="invert"> Invert Colors
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" name="threshold"> Apply Threshold
+  </div>
+  <button class="btn btn-primary mt-2" type="submit">Process</button>
+</form>
+{% if image_data %}
+<hr>
+<h4>Result:</h4>
+<img src="data:image/jpeg;base64,{{ image_data }}" class="img-fluid" />
+{% endif %}
+{% endblock %}
