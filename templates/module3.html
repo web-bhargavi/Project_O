@@ -1,24 +1,138 @@
 {% extends "base.html" %}
 {% block content %}
-<h3>Module 3: Histograms and Color Segmentation</h3>
+
+<h3>Module 3: Histograms & Color Segmentation</h3>
+
 <form method="POST" enctype="multipart/form-data">
-  <input type="file" name="image" required class="form-control my-2">
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" name="segment"> Green Color Segmentation
-  </div>
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" name="histogram"> Show Histogram
-  </div>
-  <button class="btn btn-primary mt-2" type="submit">Process</button>
+  <h5>1. Upload Image</h5>
+  <input type="file" name="image" class="form-control my-2" required>
+  <input type="checkbox" name="show_size"> Show Image Size
+  <button class="btn btn-dark mt-2" type="submit">Upload & Show Axis</button>
 </form>
+
+{% if axis_image_data %}
+<hr>
+<h5>Image with Axis (Reference Grid)</h5>
+<img src="data:image/jpeg;base64,{{ axis_image_data }}" class="img-fluid">
+
+<form method="POST">
+  <input type="hidden" name="filename" value="{{ filename }}">
+  {% if image_size %}
+    <p><strong>Image Size:</strong> {{ image_size }}</p>
+  {% endif %}
+
+  <hr><h5>2. Histogram Analysis</h5>
+  <p>Visualize the combined distribution of R, G, B pixel intensities.</p>
+  <input type="checkbox" name="histogram"> Show Combined RGB Histogram
+
+  {% if histogram_data %}
+    <br><img src="data:image/jpeg;base64,{{ histogram_data }}" class="img-fluid mt-3">
+  {% endif %}
+
+  <hr><h5>3. Color Segmentation</h5>
+  <p>Select a color space, then pick a predefined color or enter custom ranges.</p>
+  <input type="checkbox" name="segment"> Apply Color Segmentation<br><br>
+
+  <label>Color Space:</label>
+  <select name="space" class="form-control mb-2">
+    <option value="HSV">HSV (Hue–Sat–Val)</option>
+    <option value="BGR">BGR (Blue–Green–Red)</option>
+  </select>
+
+  <label>Predefined Color (HSV only):</label>
+  <select name="selected_color" id="colorDropdown" class="form-control mb-2"
+          onchange="fillHSVRange()">
+    <option value="custom">Custom Range…</option>
+    <option value="red">Red (Hue 0–10)</option>
+    <option value="green">Green (Hue 36–86)</option>
+    <option value="blue">Blue (Hue 94–126)</option>
+    <option value="yellow">Yellow (Hue 20–30)</option>
+    <option value="orange">Orange (Hue 10–25)</option>
+    <option value="purple">Purple (Hue 130–160)</option>
+    <option value="white">White (Low Saturation, High Brightness)</option>
+    <option value="black">Black (Low Value)</option>
+    <option value="gray">Gray (Low Sat, Medium Bright)</option>
+  </select>
+
+  <p class="text-muted">
+    <strong>HSV Ranges:</strong> Hue: 0–179, Saturation: 0–255, Value: 0–255  
+    <br><strong>BGR Ranges:</strong> all channels: 0–255
+  </p>
+
+  <h6>Lower Bound:</h6>
+  <div class="form-row">
+    <div class="col">
+      <input type="number" name="l_h" id="l_c1" value="0" class="form-control" placeholder="H / B">
+    </div>
+    <div class="col">
+      <input type="number" name="l_s" id="l_c2" value="0" class="form-control" placeholder="S / G">
+    </div>
+    <div class="col">
+      <input type="number" name="l_v" id="l_c3" value="0" class="form-control" placeholder="V / R">
+    </div>
+  </div>
+
+  <h6 class="mt-2">Upper Bound:</h6>
+  <div class="form-row">
+    <div class="col">
+      <input type="number" name="u_h" id="u_c1" value="179" class="form-control" placeholder="H / B">
+    </div>
+    <div class="col">
+      <input type="number" name="u_s" id="u_c2" value="255" class="form-control" placeholder="S / G">
+    </div>
+    <div class="col">
+      <input type="number" name="u_v" id="u_c3" value="255" class="form-control" placeholder="V / R">
+    </div>
+  </div>
+
+  <hr>
+  <button class="btn btn-dark mt-2" type="submit" name="save">Process & Save</button>
+</form>
+
+{% if segmented_data %}
+  <hr><h5>Segmented Output</h5>
+  <img src="data:image/jpeg;base64,{{ segmented_data }}" class="img-fluid">
+{% endif %}
+
+{% endif %}  {# closes axis_image_data block #}
+
+{% if msg %}
+  <hr><h5>{{ msg }}</h5>
+{% endif %}
+
 {% if image_data %}
-<hr>
-<h4>Result Image:</h4>
-<img src="data:image/jpeg;base64,{{ image_data }}" class="img-fluid" />
+  <hr><h5>Final Image</h5>
+  <img src="data:image/jpeg;base64,{{ image_data }}" class="img-fluid">
 {% endif %}
-{% if hist_data %}
-<hr>
-<h4>Color Histogram:</h4>
-<img src="data:image/jpeg;base64,{{ hist_data }}" class="img-fluid" />
-{% endif %}
+
 {% endblock %}
+
+{% block footer %}
+<div class="footer">Powered by OpenCV</div>
+{% endblock %}
+
+<script>
+function fillHSVRange() {
+  const map = {
+    red:    [0,120,70,10,255,255],
+    green:  [36,100,100,86,255,255],
+    blue:   [94,80,2,126,255,255],
+    yellow: [20,100,100,30,255,255],
+    orange: [10,100,20,25,255,255],
+    purple: [130,50,50,160,255,255],
+    white:  [0,0,200,179,30,255],
+    black:  [0,0,0,179,255,50],
+    gray:   [0,0,50,179,30,200]
+  };
+  const sel = document.getElementById('colorDropdown').value;
+  if (map[sel]) {
+    const [l1,l2,l3,u1,u2,u3] = map[sel];
+    document.getElementById('l_c1').value = l1;
+    document.getElementById('l_c2').value = l2;
+    document.getElementById('l_c3').value = l3;
+    document.getElementById('u_c1').value = u1;
+    document.getElementById('u_c2').value = u2;
+    document.getElementById('u_c3').value = u3;
+  }
+}
+</script>

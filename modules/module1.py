@@ -22,7 +22,7 @@ def save_axis_image(img, upload_folder):
     plt.yticks(np.arange(0, h, step=y_step))
     plt.grid(False)
     path = os.path.join(upload_folder, "axis_image.jpg")
-    plt.savefig(path)
+    plt.savefig(path, bbox_inches='tight', pad_inches=0.1)
     plt.close()
     return path
 

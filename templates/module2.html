@@ -1,22 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
-<h3>Module 2: Arithmetic, Logical Operations & Thresholding</h3>
+<h3>Module 2: Arithmetic, Thresholding, Logical & Alpha Channel</h3>
+
 <form method="POST" enctype="multipart/form-data">
-  <input type="file" name="image" required class="form-control my-2">
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" name="add"> Add Brightness
-  </div>
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" name="invert"> Invert Colors
-  </div>
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" name="threshold"> Apply Threshold
-  </div>
-  <button class="btn btn-primary mt-2" type="submit">Process</button>
+<h5>1. Upload Image</h5>
+<input type="file" name="image" required class="form-control my-2">
+<input type="checkbox" name="show_size"> Show Image Size
+<button class="btn btn-dark mt-2" type="submit">Upload & Show Axis</button>
 </form>
-{% if image_data %}
+
+{% if axis_image_data %}
 <hr>
-<h4>Result:</h4>
+<h5>Image with Axis (for reference)</h5>
+<img src="data:image/jpeg;base64,{{ axis_image_data }}" class="img-fluid" />
+<form method="POST">
+<input type="hidden" name="filename" value="{{ filename }}">
+{% if image_size %}<p><strong>Image Size:</strong> {{ image_size }}</p>{% endif %}
+
+<hr><h5>2. Arithmetic Operations</h5>
+<p>Used to control brightness and contrast by adding/subtracting or scaling pixel values.</p>
+<input type="checkbox" name="add_brightness"> Add Brightness
+<input type="number" name="add_value" value="50" class="form-control mb-2">
+
+<input type="checkbox" name="sub_brightness"> Subtract Brightness
+<input type="number" name="sub_value" value="50" class="form-control mb-2">
+
+<input type="checkbox" name="contrast_multiply"> Multiply Contrast
+<input type="number" name="mult_value" value="1.2" class="form-control mb-2">
+
+<input type="checkbox" name="contrast_divide"> Divide Contrast
+<input type="number" name="div_value" value="1.2" class="form-control mb-2">
+
+<hr><h5>3. Thresholding</h5>
+<p>Used to segment image by converting it to black and white using global or local rules.</p>
+<select name="thresh_type" class="form-control">
+  <option value="none">None</option>
+  <option value="global_binary">Global Binary</option>
+  <option value="global_binary_inv">Global Binary Inverted</option>
+  <option value="adaptive_mean">Adaptive Mean</option>
+</select>
+<br>
+<label>Threshold Value (Global):</label>
+<input type="number" name="thresh_val" value="127" class="form-control">
+
+<label>Block Size (Adaptive):</label>
+<input type="number" name="block_size" value="13" class="form-control">
+
+<label>Constant C (Adaptive):</label>
+<input type="number" name="constant_c" value="7" class="form-control">
+
+<hr><h5>4. Logical Operations</h5>
+<p>Performs bitwise AND with a fixed-value mask. Useful for highlighting pixel intensity.</p>
+<input type="checkbox" name="logical"> Apply Bitwise AND
+
+<hr><h5>5. Alpha Channel</h5>
+<p>Adds transparency by attaching an alpha channel to the image.</p>
+<input type="checkbox" name="alpha"> Add Alpha Channel
+
+<hr>
+<button class="btn btn-dark mt-2" type="submit" name="save">Process & Save</button>
+</form>
+{% endif %}
+
+{% if msg %}
+<hr><h5>{{ msg }}</h5>
+{% endif %}
+
+{% if image_data %}
+<hr><h5>Processed Image</h5>
 <img src="data:image/jpeg;base64,{{ image_data }}" class="img-fluid" />
 {% endif %}
+{% endblock %}
+
+{% block footer %}
+<div class="footer">Powered by OpenCV</div>
 {% endblock %}
